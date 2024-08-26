@@ -48,7 +48,7 @@ public class GameRunner : BackgroundService
             Console.WriteLine("We have a result");
 
             _state.RegisterRound(results);
-            await hub.Reload();
+            await hub.Update();
 
             Console.WriteLine($"Waiting for {delay} seconds");
 
@@ -65,7 +65,7 @@ public class GameRunner : BackgroundService
                 }
             }
 
-            await hub.TimeLeft("-");
+            await hub.TimeLeft("0s");
         }
     }
 }

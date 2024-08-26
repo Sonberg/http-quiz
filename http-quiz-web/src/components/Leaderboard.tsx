@@ -42,8 +42,8 @@ export function Leaderboard({ teams }: Props) {
       </TableHeader>
       <TableBody>
         {teams.map((x, index) => (
-          <TableRow className={textSizeClassName(index)}>
-            <TableCell key={x.teamId} className="font-medium font-bold">
+          <TableRow key={x.teamId} className={textSizeClassName(index)}>
+            <TableCell className="font-medium font-bold">
               {x.teamName} {index === 0 ? "🎉" : null}
             </TableCell>
             <TableCell>{x.points}</TableCell>

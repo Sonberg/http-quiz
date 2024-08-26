@@ -23,8 +23,24 @@ import {
 import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { usePageData } from "./pageData";
+import { Instructions } from "@/components/Instructions";
 
 const delays = [1, 2, 3, 4, 5, 8, 10, 12, 15, 20, 30, 40, 50, 60];
+
+type TeamScore = {
+  teamId: string;
+  teamName: string;
+  points: number;
+};
+
+type State = {
+  leaderboard: TeamScore[];
+  isStarted: boolean;
+  round: number;
+  level: number;
+  delay: number;
+  levels: number[];
+};
 
 type Props = {
   ipAddress: string;
@@ -32,29 +48,36 @@ type Props = {
 
 export function PageContent({ ipAddress }: Props) {
   const [timeLeft, setTimeLeft] = useState("-");
+  const [state, setState] = useState<State>({
+    leaderboard: [],
+    isStarted: false,
+    delay: 30,
+    level: 1,
+    round: 0,
+    levels: [],
+  });
 
   const params = useSearchParams();
-  const { stats, leaderboard, setDelay, setLevel, setStarted, refresh } =
-    usePageData();
+  const { setDelay, setLevel, setStarted } = usePageData();
 
   useEffect(() => {
-    const onReload = async () => {
-      await refresh();
-    };
-
     const onTimeLeft = (value: string) => {
       setTimeLeft(value);
+    };
+
+    const onState = (state: State) => {
+      setState(state);
     };
 
     if (SignalR.state === HubConnectionState.Disconnected) {
       SignalR.start();
     }
 
-    SignalR.on("Reload", onReload);
+    SignalR.on("State", onState);
     SignalR.on("TimeLeft", onTimeLeft);
 
     return () => {
-      SignalR.off("Reload", onReload);
+      SignalR.off("State", onState);
       SignalR.off("TimeLeft", onTimeLeft);
     };
 
@@ -64,21 +87,21 @@ export function PageContent({ ipAddress }: Props) {
   return (
     <>
       <div className="flex items-center gap-2 font-mono mb-12">
-        <img src="/logo.webp" height={54} width={54} />{" "}
+        <img src="/logo.webp" height={54} alt="Logo" width={54} />{" "}
         <div className="text-4xl font-bold">HttpQuiz</div>
       </div>
       <div className="flex justify-between">
         <h1 className="text-2xl mb-4  font-mono">Leaderboard</h1>
       </div>
-      <Leaderboard teams={leaderboard} />
+      <Leaderboard teams={state.leaderboard} />
       <AddTeamSheet ipAddress={ipAddress} />
       {params.get("admin") ? (
         <Button
           className="ml-4"
           variant="secondary"
-          onClick={() => setStarted(!stats.isStarted)}
+          onClick={() => setStarted(!state.isStarted)}
         >
-          {stats.isStarted ? "Stop" : "Start"}
+          {state.isStarted ? "Stop" : "Start"}
         </Button>
       ) : null}
 
@@ -86,19 +109,19 @@ export function PageContent({ ipAddress }: Props) {
         <Card x-chunk="dashboard-05-chunk-1">
           <CardHeader className="pb-2">
             <CardDescription>Round</CardDescription>
-            <CardTitle className="text-4xl">{stats.round}</CardTitle>
+            <CardTitle className="text-4xl">{state.round}</CardTitle>
           </CardHeader>
-          <CardContent>{stats.delay} seconds delay</CardContent>
+          <CardContent>{state.delay} seconds delay</CardContent>
         </Card>
         <Card x-chunk="dashboard-05-chunk-1">
           <CardHeader className="pb-2">
             <CardDescription>Level</CardDescription>
-            <CardTitle className="text-4xl">{stats.level}</CardTitle>
+            <CardTitle className="text-4xl">{state.level}</CardTitle>
           </CardHeader>
           {params.get("admin") ? (
             <CardContent>
               <Select
-                value={`${stats.level}`}
+                value={`${state.level}`}
                 onValueChange={(value) => setLevel(parseInt(value, 10))}
               >
                 <SelectTrigger className="w-[180px]">
@@ -106,7 +129,7 @@ export function PageContent({ ipAddress }: Props) {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
-                    {stats.levels.map((x) => (
+                    {state.levels.map((x) => (
                       <SelectItem key={x} value={`${x}`}>
                         {x}
                       </SelectItem>
@@ -125,7 +148,7 @@ export function PageContent({ ipAddress }: Props) {
           {params.get("admin") ? (
             <CardContent>
               <Select
-                value={`${stats.delay}`}
+                value={`${state.delay}`}
                 onValueChange={(value) => setDelay(parseInt(value, 10))}
               >
                 <SelectTrigger className="w-[180px]">
@@ -145,6 +168,7 @@ export function PageContent({ ipAddress }: Props) {
           ) : null}
         </Card>
       </div>
+     <Instructions/>
     </>
   );
 }

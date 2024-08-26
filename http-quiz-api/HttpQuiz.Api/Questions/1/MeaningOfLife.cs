@@ -19,6 +19,13 @@ public class MeaningOfLife : Question
 
     public static Question New()
     {
-        return new MeaningOfLife();
+        return new MeaningOfLife
+        {
+            Body = new QuestionBody
+            {
+                Question = "Have you read The hitchhiker's guide to the galaxy?",
+                Input = new {}
+            }
+        };
     }
 }

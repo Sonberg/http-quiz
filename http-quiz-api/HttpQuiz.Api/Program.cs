@@ -62,7 +62,7 @@ app.MapPost("/api/add-team", async ([FromBody] NewUser user, GameState state, IG
             Name = user.Name,
             BaseUrl = user.BaseUrl
         });
-        await hub.Reload();
+        await hub.Update();
     })
     .WithName("AddTeam")
     .WithOpenApi();
@@ -70,7 +70,7 @@ app.MapPost("/api/add-team", async ([FromBody] NewUser user, GameState state, IG
 app.MapPost("/api/start", async (GameState state, IGameHubContext hub) =>
     {
         state.Start();
-        await hub.Reload();
+        await hub.Update();
     })
     .WithName("StartGame")
     .WithOpenApi();
@@ -78,7 +78,7 @@ app.MapPost("/api/start", async (GameState state, IGameHubContext hub) =>
 app.MapPost("/api/stop", async (GameState state, IGameHubContext hub) =>
     {
         state.Stop();
-        await hub.Reload();
+        await hub.Update();
         await hub.TimeLeft("-");
     })
     .WithName("StopGame")
@@ -87,7 +87,7 @@ app.MapPost("/api/stop", async (GameState state, IGameHubContext hub) =>
 app.MapPut("/api/set-delay", async ([FromBody] SetDelay body, GameState state, IGameHubContext hub) =>
     {
         state.Delay = body.Delay;
-        await hub.Reload();
+        await hub.Update();
     })
     .WithName("SetDelay")
     .WithOpenApi();
@@ -95,7 +95,7 @@ app.MapPut("/api/set-delay", async ([FromBody] SetDelay body, GameState state, I
 app.MapPut("/api/set-level", async ([FromBody] SetLevel body, GameState state, IGameHubContext hub) =>
     {
         state.Level = body.Level;
-        await hub.Reload();
+        await hub.Update();
     })
     .WithName("SetLevel")
     .WithOpenApi();

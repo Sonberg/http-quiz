@@ -32,6 +32,7 @@ export function AddTeamSheet({ ipAddress }: Props) {
 
   const submit = async () => {
     const parsed = await schema.safeParseAsync({ name, port });
+    const baseUrl = ipAddress === "::1" ? "localhost" : ipAddress;
 
     if (!parsed.success) {
       throw new Error(parsed.error.message);
@@ -39,7 +40,7 @@ export function AddTeamSheet({ ipAddress }: Props) {
 
     await Api.post("/api/add-team", {
       name: parsed.data.name,
-      baseUrl: `http://${ipAddress}:${port}`,
+      baseUrl: `http://${baseUrl}:${port}`,
     });
 
     setName("");
@@ -56,7 +57,9 @@ export function AddTeamSheet({ ipAddress }: Props) {
         <SheetHeader>
           <SheetTitle>Add your team</SheetTitle>
           <SheetDescription>
-            Select a cool team name and let us know on which port your api is running on. We will use your current IP = <strong>{ipAddress}</strong>
+            Select a cool team name and let us know on which port your api is
+            running on. We will use your current IP ={" "}
+            <strong>{ipAddress}</strong>
           </SheetDescription>
         </SheetHeader>
         <div className="grid gap-8 py-4">
