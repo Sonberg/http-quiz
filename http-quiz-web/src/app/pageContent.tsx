@@ -69,7 +69,6 @@ export function PageContent({ baseUrl }: Props) {
     const onState = (state: State) => {
       setState(state);
     };
-    
 
     if (SignalR.state === HubConnectionState.Disconnected) {
       SignalR.start();
@@ -81,7 +80,6 @@ export function PageContent({ baseUrl }: Props) {
     return () => {
       SignalR.off("State", onState);
       SignalR.off("TimeLeft", onTimeLeft);
-
     };
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -133,7 +131,7 @@ export function PageContent({ baseUrl }: Props) {
                 value={`${state.level}`}
                 onValueChange={(value) => setLevel(parseInt(value, 10))}
               >
-                <SelectTrigger className="w-[180px]">
+                <SelectTrigger className="w-full max-w-[180px]">
                   <SelectValue placeholder="Select level" />
                 </SelectTrigger>
                 <SelectContent>
@@ -160,7 +158,7 @@ export function PageContent({ baseUrl }: Props) {
                 value={`${state.delay}`}
                 onValueChange={(value) => setDelay(parseInt(value, 10))}
               >
-                <SelectTrigger className="w-[180px]">
+                <SelectTrigger className="w-full max-w-[180px]">
                   <SelectValue placeholder="Select delay" />
                 </SelectTrigger>
                 <SelectContent>

@@ -30,7 +30,7 @@ public class GameRunner : BackgroundService
         {
             if (_state.StartedAt is null)
             {
-                await Task.Delay(TimeSpan.FromSeconds(10), ct);
+                await Task.Delay(TimeSpan.FromSeconds(2), ct);
                 continue;
             }
 
@@ -53,18 +53,18 @@ public class GameRunner : BackgroundService
             Console.WriteLine($"Waiting for {delay} seconds");
 
             await hub.TimeLeft($"{delay}s");
-
-            await Task.Delay(1 * 1000, ct);
-
-            if (delay > 1)
+            
+            for (var i = 0; i < delay; i++)
             {
-                for (var i = 0; i < delay - 1; i++)
+                if (_state.StartedAt is null)
                 {
-                    await hub.TimeLeft($"{delay - i}s");
-                    await Task.Delay(1 * 1000, ct);
+                    break;
                 }
-            }
 
+                await hub.TimeLeft($"{delay - i}s");
+                await Task.Delay(1 * 1000, ct);
+            }
+            
             await hub.TimeLeft("0s");
         }
     }

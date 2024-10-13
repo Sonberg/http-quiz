@@ -4,15 +4,21 @@ namespace HttpQuiz.Api.Logic;
 
 public class GameState
 {
+    public GameState()
+    {
+        Level = 1;
+        Delay = 30;
+    }
+
     public DateTimeOffset? StartedAt { get; private set; }
 
     private Dictionary<Guid, int> Ranking { get; set; } = new();
 
     public Dictionary<Guid, Team> Teams { get; } = new();
 
-    public int Level { get; set; } = 1;
+    public int Level { get; set; }
 
-    public int Delay { get; set; } = 30;
+    public int Delay { get; set; }
 
     public int Round { get; private set; }
 
@@ -36,11 +42,11 @@ public class GameState
     {
         StartedAt = null;
         Delay = 30;
-        Level = 0;
+        Level = 1;
         Round = 0;
         Ranking.Clear();
     }
-    
+
     public void Clear()
     {
         Stop();
