@@ -81,6 +81,7 @@ export function PageContent({ baseUrl }: Props) {
     return () => {
       SignalR.off("State", onState);
       SignalR.off("TimeLeft", onTimeLeft);
+      SignalR.stop();
     };
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
