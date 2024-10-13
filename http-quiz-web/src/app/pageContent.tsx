@@ -10,7 +10,7 @@ import {
   CardTitle,
   CardContent,
 } from "@/components/ui/card";
-import { SignalR } from "@/lib/signalR";
+import { getSignalR } from "@/lib/signalR";
 import { HubConnectionState } from "@microsoft/signalr";
 import {
   Select,
@@ -43,10 +43,10 @@ type State = {
 };
 
 type Props = {
-  ipAddress: string;
+  baseUrl: string;
 };
 
-export function PageContent({ ipAddress }: Props) {
+export function PageContent({ baseUrl }: Props) {
   const [timeLeft, setTimeLeft] = useState("-");
   const [state, setState] = useState<State>({
     leaderboard: [],
@@ -58,7 +58,7 @@ export function PageContent({ ipAddress }: Props) {
   });
 
   const params = useSearchParams();
-  const { setDelay, setLevel, setStarted } = usePageData();
+  const { setDelay, setLevel, setStarted } = usePageData({ baseUrl });
 
   useEffect(() => {
     const onTimeLeft = (value: string) => {
@@ -68,6 +68,8 @@ export function PageContent({ ipAddress }: Props) {
     const onState = (state: State) => {
       setState(state);
     };
+
+    const SignalR = getSignalR(baseUrl);
 
     if (SignalR.state === HubConnectionState.Disconnected) {
       SignalR.start();
@@ -94,7 +96,7 @@ export function PageContent({ ipAddress }: Props) {
         <h1 className="text-2xl mb-4  font-mono">Leaderboard</h1>
       </div>
       <Leaderboard teams={state.leaderboard} />
-      <AddTeamSheet ipAddress={ipAddress} />
+      <AddTeamSheet baseUrl={baseUrl} />
       {params.get("admin") ? (
         <Button
           className="ml-4"
@@ -168,7 +170,7 @@ export function PageContent({ ipAddress }: Props) {
           ) : null}
         </Card>
       </div>
-     <Instructions/>
+      <Instructions />
     </>
   );
 }

@@ -1,13 +1,17 @@
-import { Api } from "@/lib/api";
+import { getApi } from "@/lib/api";
 import { QueryClient, useMutation } from "@tanstack/react-query";
 
 const client = new QueryClient();
 
-export function usePageData() {
+type Args = {
+  baseUrl: string;
+};
+
+export function usePageData({ baseUrl }: Args) {
   const setStarted = useMutation(
     {
       mutationFn: async (state: boolean) => {
-        await Api.post(state ? "/api/start" : "/api/stop");
+        await getApi(baseUrl).post(state ? "/api/start" : "/api/stop");
       },
     },
     client
@@ -16,7 +20,7 @@ export function usePageData() {
   const setDelay = useMutation(
     {
       mutationFn: async (delay: number) => {
-        await Api.put("/api/set-delay", { delay });
+        await getApi(baseUrl).put("/api/set-delay", { delay });
       },
     },
     client
@@ -25,7 +29,7 @@ export function usePageData() {
   const setLevel = useMutation(
     {
       mutationFn: async (level: number) => {
-        await Api.put("/api/set-level", { level });
+        await getApi(baseUrl).put("/api/set-level", { level });
       },
     },
     client

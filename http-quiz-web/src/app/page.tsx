@@ -5,9 +5,7 @@ export default function Home() {
   const headersList = headers();
   return (
     <>
-      <PageContent
-        ipAddress={headersList.get("x-forwarded-for")!.replace("::ffff:", "")}
-      />
+      <PageContent baseUrl={process.env.NEXT_PUBLIC_API_URL!} />
     </>
   );
 }

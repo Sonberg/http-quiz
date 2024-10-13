@@ -12,39 +12,40 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { Api } from "@/lib/api";
+import { getApi } from "@/lib/api";
 import { useState } from "react";
 import { z } from "zod";
 
 const schema = z.object({
   name: z.string(),
-  port: z.string(),
+  url: z.string(),
 });
 
 type Props = {
-  ipAddress: string;
+  baseUrl: string;
 };
 
-export function AddTeamSheet({ ipAddress }: Props) {
+export function AddTeamSheet({ baseUrl }: Props) {
   const [name, setName] = useState("");
-  const [port, setPort] = useState("");
+  const [url, setUrl] = useState("");
   const [isOpen, setOpen] = useState(false);
 
   const submit = async () => {
-    const parsed = await schema.safeParseAsync({ name, port });
-    const baseUrl = ipAddress === "::1" ? "localhost" : ipAddress;
+    const parsed = await schema.safeParseAsync({ name, url });
 
     if (!parsed.success) {
       throw new Error(parsed.error.message);
     }
 
+    const Api = await getApi(baseUrl);
+
     await Api.post("/api/add-team", {
       name: parsed.data.name,
-      baseUrl: `http://${baseUrl}:${port}`,
+      baseUrl: url,
     });
 
     setName("");
-    setPort("");
+    setUrl("");
     setOpen(false);
   };
 
@@ -57,9 +58,8 @@ export function AddTeamSheet({ ipAddress }: Props) {
         <SheetHeader>
           <SheetTitle>Add your team</SheetTitle>
           <SheetDescription>
-            Select a cool team name and let us know on which port your api is
-            running on. We will use your current IP ={" "}
-            <strong>{ipAddress}</strong>
+            Select a cool team name and let us know on which url your api is
+            running on. You can use Ngrok to expose local api
           </SheetDescription>
         </SheetHeader>
         <div className="grid gap-8 py-4">
@@ -76,12 +76,12 @@ export function AddTeamSheet({ ipAddress }: Props) {
             />
           </div>
           <div className="gap-4 flex flex-col">
-            <Label htmlFor="port">Port</Label>
+            <Label htmlFor="url">Url</Label>
             <Input
-              id="port"
-              value={port}
-              onChange={(ev) => setPort(ev.target.value)}
-              placeholder="Which your api is running on"
+              id="url"
+              value={url}
+              onChange={(ev) => setUrl(ev.target.value)}
+              placeholder="Your Ngrok url"
               className="col-span-3"
             />
           </div>
