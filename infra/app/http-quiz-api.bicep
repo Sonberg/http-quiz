@@ -43,8 +43,10 @@ resource acrPullRole 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   scope: containerRegistry
   name: guid(subscription().id, resourceGroup().id, identity.id, 'acrPullRole')
   properties: {
-    roleDefinitionId:  subscriptionResourceId(
-      'Microsoft.Authorization/roleDefinitions', '7f951dda-4ed3-4680-a7ca-43fe172d538d')
+    roleDefinitionId: subscriptionResourceId(
+      'Microsoft.Authorization/roleDefinitions',
+      '7f951dda-4ed3-4680-a7ca-43fe172d538d'
+    )
     principalType: 'ServicePrincipal'
     principalId: identity.properties.principalId
   }
@@ -61,8 +63,8 @@ module fetchLatestImage '../modules/fetch-container-image.bicep' = {
 resource app 'Microsoft.App/containerApps@2023-05-02-preview' = {
   name: name
   location: location
-  tags: union(tags, {'azd-service-name':  'http-quiz-api' })
-  dependsOn: [ acrPullRole ]
+  tags: union(tags, { 'azd-service-name': 'http-quiz-api' })
+  dependsOn: [acrPullRole]
   identity: {
     type: 'UserAssigned'
     userAssignedIdentities: { '${identity.id}': {} }
@@ -70,14 +72,16 @@ resource app 'Microsoft.App/containerApps@2023-05-02-preview' = {
   properties: {
     managedEnvironmentId: containerAppsEnvironment.id
     configuration: {
-      ingress:  {
+      ingress: {
         external: true
         targetPort: 80
         transport: 'auto'
         corsPolicy: {
+          allowCredentials: true
           allowedOrigins: union(allowedOrigins, [
             // define additional allowed origins here
           ])
+          allowedMethods: ['PUT', 'POST', 'GET']
         }
       }
       registries: [
@@ -86,33 +90,36 @@ resource app 'Microsoft.App/containerApps@2023-05-02-preview' = {
           identity: identity.id
         }
       ]
-      secrets: union([
-      ],
-      map(secrets, secret => {
-        name: secret.secretRef
-        value: secret.value
-      }))
+      secrets: union(
+        [],
+        map(secrets, secret => {
+          name: secret.secretRef
+          value: secret.value
+        })
+      )
     }
     template: {
       containers: [
         {
           image: fetchLatestImage.outputs.?containers[?0].?image ?? 'mcr.microsoft.com/azuredocs/containerapps-helloworld:latest'
           name: 'main'
-          env: union([
-            {
-              name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
-              value: applicationInsights.properties.ConnectionString
-            }
-            {
-              name: 'PORT'
-              value: '80'
-            }
-          ],
-          env,
-          map(secrets, secret => {
-            name: secret.name
-            secretRef: secret.secretRef
-          }))
+          env: union(
+            [
+              {
+                name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
+                value: applicationInsights.properties.ConnectionString
+              }
+              {
+                name: 'PORT'
+                value: '80'
+              }
+            ],
+            env,
+            map(secrets, secret => {
+              name: secret.name
+              secretRef: secret.secretRef
+            })
+          )
           resources: {
             cpu: json('1.0')
             memory: '2.0Gi'
@@ -121,7 +128,7 @@ resource app 'Microsoft.App/containerApps@2023-05-02-preview' = {
       ]
       scale: {
         minReplicas: 0
-        maxReplicas: 10
+        maxReplicas: 1
       }
     }
   }

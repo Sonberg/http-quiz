@@ -42,14 +42,8 @@ builder.Services.AddCors(opt =>
 
 var app = builder.Build();
 
-
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
+app.UseSwagger();
+app.UseSwaggerUI();
 app.UseCors();
 app.MapHub<GameHub>("/hub");
 app.UseHttpsRedirection();
@@ -84,6 +78,15 @@ app.MapPost("/api/stop", async (GameState state, IGameHubContext hub) =>
     .WithName("StopGame")
     .WithOpenApi();
 
+app.MapPost("/api/clear", async (GameState state, IGameHubContext hub) =>
+{
+    state.Clear();
+    await hub.Update();
+    await hub.TimeLeft("-");
+})
+.WithName("ResetGame")
+.WithOpenApi();
+
 app.MapPut("/api/set-delay", async ([FromBody] SetDelay body, GameState state, IGameHubContext hub) =>
     {
         state.Delay = body.Delay;
@@ -106,13 +109,13 @@ app.MapGet("/api/leaderboard", (GameState state) => state.Leaderboard)
     .WithOpenApi();
 
 app.MapGet("/api/stats", (GameState state) => new Stats
-    {
-        IsStarted = state.StartedAt is not null,
-        Delay = state.Delay,
-        Round = state.Round,
-        Level = state.Level,
-        Levels = GameConstants.Questions.Select(x => x.Level).Distinct().Order().ToArray()
-    })
+{
+    IsStarted = state.StartedAt is not null,
+    Delay = state.Delay,
+    Round = state.Round,
+    Level = state.Level,
+    Levels = GameConstants.Questions.Select(x => x.Level).Distinct().Order().ToArray()
+})
     .WithName("GetStats")
     .WithOpenApi();
 

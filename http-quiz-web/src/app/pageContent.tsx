@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AddTeamSheet } from "@/components/AddTeamSheet";
 import { Leaderboard } from "@/components/Leaderboard";
 import {
@@ -58,7 +58,8 @@ export function PageContent({ baseUrl }: Props) {
   });
 
   const params = useSearchParams();
-  const { setDelay, setLevel, setStarted } = usePageData({ baseUrl });
+  const { setDelay, setLevel, setStarted, clear } = usePageData({ baseUrl });
+  const SignalR = useMemo(() => getSignalR(baseUrl), [baseUrl]);
 
   useEffect(() => {
     const onTimeLeft = (value: string) => {
@@ -68,8 +69,7 @@ export function PageContent({ baseUrl }: Props) {
     const onState = (state: State) => {
       setState(state);
     };
-
-    const SignalR = getSignalR(baseUrl);
+    
 
     if (SignalR.state === HubConnectionState.Disconnected) {
       SignalR.start();
@@ -81,11 +81,11 @@ export function PageContent({ baseUrl }: Props) {
     return () => {
       SignalR.off("State", onState);
       SignalR.off("TimeLeft", onTimeLeft);
-      SignalR.stop();
+
     };
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [SignalR]);
 
   return (
     <>
@@ -105,6 +105,12 @@ export function PageContent({ baseUrl }: Props) {
           onClick={() => setStarted(!state.isStarted)}
         >
           {state.isStarted ? "Stop" : "Start"}
+        </Button>
+      ) : null}
+
+      {params.get("admin") && !state.isStarted && state.leaderboard.length ? (
+        <Button className="ml-4" variant="secondary" onClick={() => clear()}>
+          Reset
         </Button>
       ) : null}
 
