@@ -40,6 +40,12 @@ public class GameState
         Round = 0;
         Ranking.Clear();
     }
+    
+    public void Clear()
+    {
+        Stop();
+        Teams.Clear();
+    }
 
     public void AddTeam(Team team)
     {

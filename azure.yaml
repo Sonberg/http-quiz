@@ -1,0 +1,14 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/Azure/azure-dev/main/schemas/v1.0/azure.yaml.json
+
+name: http-quiz
+metadata:
+    template: azd-init@1.9.5
+services:
+    http-quiz-api:
+        project: http-quiz-api/HttpQuiz.Api
+        host: containerapp
+        language: dotnet
+    http-quiz-web:
+        project: http-quiz-web
+        host: containerapp
+        language: js

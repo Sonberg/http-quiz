@@ -7,6 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useAutoAnimate } from '@formkit/auto-animate/react'
 
 type TeamScore = {
   teamId: string;
@@ -19,6 +20,7 @@ type Props = {
 };
 
 export function Leaderboard({ teams }: Props) {
+  const [animationParent] = useAutoAnimate();
   const textSizeClassName = (index: number) => {
     switch (index) {
       case 0:
@@ -40,7 +42,7 @@ export function Leaderboard({ teams }: Props) {
           <TableHead className="w-[100px]">Score</TableHead>
         </TableRow>
       </TableHeader>
-      <TableBody>
+      <TableBody ref={animationParent}>
         {teams.map((x, index) => (
           <TableRow key={x.teamId} className={textSizeClassName(index)}>
             <TableCell className="font-medium font-bold">
