@@ -65,7 +65,7 @@ public class GameRunner : BackgroundService
                 await Task.Delay(1 * 1000, ct);
             }
             
-            await hub.TimeLeft("0s");
+            await hub.TimeLeft("-");
         }
     }
 }

@@ -16,7 +16,7 @@ builder.Services.AddSingleton<GameState>();
 builder.Services.AddSingleton<GameEngine>();
 builder.Services.AddHostedService<GameRunner>();
 builder.Services.AddScoped<IGameHubContext, GameHubContext>();
-builder.Services.AddHttpClient("Gun", opt => { opt.Timeout = TimeSpan.FromSeconds(10); });
+builder.Services.AddHttpClient("Gun", opt => { opt.Timeout = TimeSpan.FromSeconds(5); });
 builder.Services
     .AddSignalR()
     .AddJsonProtocol(opt =>

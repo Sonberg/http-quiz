@@ -1,4 +1,3 @@
-using System.Collections.Concurrent;
 using HttpQuiz.Api.Interfaces;
 
 namespace HttpQuiz.Api.Logic;
@@ -27,9 +26,7 @@ public class GameEngine
         ICollection<Team> users,
         CancellationToken ct)
     {
-        var result = new ConcurrentDictionary<Guid, QuestionResult>();
-
-        await Parallel.ForEachAsync(users, ct, async (user, _) =>
+        var tasks = users.ToDictionary(user => user.Id, async user =>
         {
             try
             {
@@ -44,15 +41,17 @@ public class GameEngine
                 var response = await client.SendAsync(request, ct);
                 var rank = await question.Rank(response);
 
-                result.TryAdd(user.Id, rank);
+                return rank;
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                result.TryAdd(user.Id, QuestionResult.Error);
+                return QuestionResult.Error;
             }
         });
 
-        return result.ToDictionary(x => x.Key, x => x.Value);
+        await Task.WhenAll(tasks.Values);
+
+        return tasks.ToDictionary(x => x.Key, x => x.Value.Result);
     }
 }
